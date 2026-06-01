@@ -163,17 +163,27 @@ async fn main() {
     });
 
     // CLI flags override config
-    if let Some(l) = &cli.lang  { config.language = l.clone(); }
-    if let Some(t) = &cli.theme { config.theme    = t.clone(); }
-    if let Some(w) = cli.width  { config.width    = w; }
-    if cli.pager { config.pager = true; }
+    if let Some(l) = &cli.lang {
+        config.language = l.clone();
+    }
+    if let Some(t) = &cli.theme {
+        config.theme = t.clone();
+    }
+    if let Some(w) = cli.width {
+        config.width = w;
+    }
+    if cli.pager {
+        config.pager = true;
+    }
 
     let no_color = cli.no_color || cli.raw;
     let no_emoji = cli.no_emoji || cli.raw;
-    if no_color { set_color_override(false); }
+    if no_color {
+        set_color_override(false);
+    }
 
-    let theme    = config.active_theme();
-    let width    = config.effective_width();
+    let theme = config.active_theme();
+    let width = config.effective_width();
     let renderer = Renderer::new(theme, width, !no_emoji);
 
     let result = dispatch(cli.command, &mut config, &renderer).await;
@@ -192,11 +202,11 @@ async fn main() {
 /// it does NOT rely on `less` or any external binary. It renders the content
 /// in a scrollable TUI inside the terminal process itself.
 fn page_string(content: String) -> Result<(), WikiError> {
-    let mut pager = Pager::new();
-    pager.push_str(&content)
+    let pager = Pager::new();
+    pager
+        .push_str(&content)
         .map_err(|e: minus::error::MinusError| WikiError::Other(e.to_string()))?;
-    minus::page_all(pager)
-        .map_err(|e: minus::error::MinusError| WikiError::Other(e.to_string()))
+    minus::page_all(pager).map_err(|e: minus::error::MinusError| WikiError::Other(e.to_string()))
 }
 
 // ─── Dispatch ────────────────────────────────────────────────────────────────
@@ -207,13 +217,16 @@ async fn dispatch(
     renderer: &Renderer,
 ) -> Result<(), WikiError> {
     match cmd {
-        Commands::Search(c)      => run_search(c, config, renderer).await,
-        Commands::Get(c)         => run_get(c, config, renderer).await,
-        Commands::Summary(c)     => run_summary(c, config, renderer).await,
-        Commands::Open(c)        => run_open(c, config, renderer).await,
-        Commands::Categories(c)  => run_categories(c, config, renderer).await,
-        Commands::Config(c)      => run_config(c, config, renderer).await,
-        Commands::Themes         => { renderer.render_themes_list(); Ok(()) }
+        Commands::Search(c) => run_search(c, config, renderer).await,
+        Commands::Get(c) => run_get(c, config, renderer).await,
+        Commands::Summary(c) => run_summary(c, config, renderer).await,
+        Commands::Open(c) => run_open(c, config, renderer).await,
+        Commands::Categories(c) => run_categories(c, config, renderer).await,
+        Commands::Config(c) => run_config(c, config, renderer).await,
+        Commands::Themes => {
+            renderer.render_themes_list();
+            Ok(())
+        }
         Commands::Interactive(c) => run_interactive(c, config, renderer).await,
     }
 }
@@ -221,8 +234,8 @@ async fn dispatch(
 // ─── Command handlers ─────────────────────────────────────────────────────────
 
 async fn run_search(cmd: SearchCmd, config: &Config, renderer: &Renderer) -> Result<(), WikiError> {
-    let client  = WikiClient::new(config.clone())?;
-    let sp      = make_spinner(&format!("Searching for \"{}\"…", cmd.query));
+    let client = WikiClient::new(config.clone())?;
+    let sp = make_spinner(&format!("Searching for \"{}\"…", cmd.query));
     let results = client.search(&cmd.query, cmd.results).await?;
     sp.finish_and_clear();
 
@@ -235,8 +248,8 @@ async fn run_search(cmd: SearchCmd, config: &Config, renderer: &Renderer) -> Res
 }
 
 async fn run_get(cmd: GetCmd, config: &Config, renderer: &Renderer) -> Result<(), WikiError> {
-    let client  = WikiClient::new(config.clone())?;
-    let sp      = make_spinner(&format!("Fetching \"{}\"…", cmd.title));
+    let client = WikiClient::new(config.clone())?;
+    let sp = make_spinner(&format!("Fetching \"{}\"…", cmd.title));
     let article = client.fetch_article(&cmd.title).await?;
     sp.finish_and_clear();
 
@@ -252,9 +265,13 @@ async fn run_get(cmd: GetCmd, config: &Config, renderer: &Renderer) -> Result<()
     fetch_and_display(article, &client, config, renderer).await
 }
 
-async fn run_summary(cmd: SummaryCmd, config: &Config, renderer: &Renderer) -> Result<(), WikiError> {
-    let client  = WikiClient::new(config.clone())?;
-    let sp      = make_spinner(&format!("Fetching summary for \"{}\"…", cmd.title));
+async fn run_summary(
+    cmd: SummaryCmd,
+    config: &Config,
+    renderer: &Renderer,
+) -> Result<(), WikiError> {
+    let client = WikiClient::new(config.clone())?;
+    let sp = make_spinner(&format!("Fetching summary for \"{}\"…", cmd.title));
     let article = client.fetch_summary(&cmd.title).await?;
     sp.finish_and_clear();
 
@@ -268,23 +285,30 @@ async fn run_summary(cmd: SummaryCmd, config: &Config, renderer: &Renderer) -> R
 
 async fn run_open(cmd: OpenCmd, config: &Config, renderer: &Renderer) -> Result<(), WikiError> {
     let client = WikiClient::new(config.clone())?;
-    let url    = client.article_url(&cmd.title);
+    let url = client.article_url(&cmd.title);
     renderer.print_message(&format!("Opening: {url}"));
     open::that(&url).map_err(|e| WikiError::Other(e.to_string()))?;
     renderer.print_success("Opened in browser.");
     Ok(())
 }
 
-async fn run_categories(cmd: CategoriesCmd, config: &Config, renderer: &Renderer) -> Result<(), WikiError> {
-    let client  = WikiClient::new(config.clone())?;
-    let sp      = make_spinner(&format!("Fetching categories for \"{}\"…", cmd.title));
+async fn run_categories(
+    cmd: CategoriesCmd,
+    config: &Config,
+    renderer: &Renderer,
+) -> Result<(), WikiError> {
+    let client = WikiClient::new(config.clone())?;
+    let sp = make_spinner(&format!("Fetching categories for \"{}\"…", cmd.title));
     let article = client.fetch_article(&cmd.title).await?;
     sp.finish_and_clear();
 
     let theme = config.active_theme();
     println!();
-    println!("{}", theme.title(&format!("🏷️  Categories — {}", article.title)));
-    println!("{}", theme.separator(&"─".repeat(60)));
+    println!(
+        "{}",
+        theme.title(format!("🏷️  Categories — {}", article.title))
+    );
+    println!("{}", theme.separator("─".repeat(60)));
     if article.categories.is_empty() {
         println!("{}", renderer.dim_str("  (none found)"));
     } else {
@@ -296,9 +320,13 @@ async fn run_categories(cmd: CategoriesCmd, config: &Config, renderer: &Renderer
     Ok(())
 }
 
-async fn run_interactive(cmd: SearchCmd, config: &Config, renderer: &Renderer) -> Result<(), WikiError> {
-    let client  = WikiClient::new(config.clone())?;
-    let sp      = make_spinner(&format!("Searching for \"{}\"…", cmd.query));
+async fn run_interactive(
+    cmd: SearchCmd,
+    config: &Config,
+    renderer: &Renderer,
+) -> Result<(), WikiError> {
+    let client = WikiClient::new(config.clone())?;
+    let sp = make_spinner(&format!("Searching for \"{}\"…", cmd.query));
     let results = client.search(&cmd.query, cmd.results).await?;
     sp.finish_and_clear();
 
@@ -313,10 +341,12 @@ async fn run_interactive(cmd: SearchCmd, config: &Config, renderer: &Renderer) -
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).ok();
     let choice: usize = input.trim().parse().unwrap_or(0);
-    if choice == 0 || choice > results.len() { return Ok(()); }
+    if choice == 0 || choice > results.len() {
+        return Ok(());
+    }
 
-    let title   = &results[choice - 1].title;
-    let sp      = make_spinner(&format!("Fetching \"{}\"…", title));
+    let title = &results[choice - 1].title;
+    let sp = make_spinner(&format!("Fetching \"{}\"…", title));
     let article = client.fetch_article(title).await?;
     sp.finish_and_clear();
 
@@ -329,9 +359,9 @@ async fn run_interactive(cmd: SearchCmd, config: &Config, renderer: &Renderer) -
 /// the user can pick which meaning they want. Recurses (via Box::pin) until a
 /// real article is rendered or the user enters 0 to quit.
 fn fetch_and_display<'a>(
-    article:  wikiwiki::prelude::Article,
-    client:   &'a WikiClient,
-    config:   &'a Config,
+    article: wikiwiki::prelude::Article,
+    client: &'a WikiClient,
+    config: &'a Config,
     renderer: &'a Renderer,
 ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), WikiError>> + 'a>> {
     Box::pin(async move {
@@ -347,7 +377,9 @@ fn fetch_and_display<'a>(
                 };
             }
 
-            let opts = client.fetch_disambiguation(&current).await
+            let opts = client
+                .fetch_disambiguation(&current)
+                .await
                 .unwrap_or_else(|_| current.disambiguation_options());
             if opts.is_empty() {
                 // Fallback: render as-is (unusual empty disambig page)
@@ -370,7 +402,7 @@ fn fetch_and_display<'a>(
             }
 
             let opt = &opts[choice - 1];
-            let sp  = make_spinner(&format!("Fetching \"{}\"…", opt.title));
+            let sp = make_spinner(&format!("Fetching \"{}\"…", opt.title));
 
             match client.fetch_article(&opt.title).await {
                 Ok(next) => {
@@ -392,9 +424,7 @@ fn fetch_and_display<'a>(
                     renderer.print_error(&format!(
                         "Could not find an article for \"{}\". \
 Try: wikiwiki search \"{}\", {}\",",
-                        opt.title,
-                        current.title,
-                        opt.description
+                        opt.title, current.title, opt.description
                     ));
                     return Ok(());
                 }
@@ -405,9 +435,15 @@ Try: wikiwiki search \"{}\", {}\",",
     })
 }
 
-async fn run_config(cmd: ConfigCmd, config: &mut Config, renderer: &Renderer) -> Result<(), WikiError> {
+async fn run_config(
+    cmd: ConfigCmd,
+    config: &mut Config,
+    renderer: &Renderer,
+) -> Result<(), WikiError> {
     match cmd.action {
-        ConfigAction::Show => { renderer.render_config_info(config); }
+        ConfigAction::Show => {
+            renderer.render_config_info(config);
+        }
         ConfigAction::Set { key, value } => {
             apply_config_set(config, &key, &value)?;
             config.save()?;
@@ -418,12 +454,10 @@ async fn run_config(cmd: ConfigCmd, config: &mut Config, renderer: &Renderer) ->
             config.save()?;
             renderer.print_success("Configuration reset to defaults.");
         }
-        ConfigAction::Path => {
-            match Config::path() {
-                Some(p) => println!("{}", p.display()),
-                None    => renderer.print_error("Could not determine config path."),
-            }
-        }
+        ConfigAction::Path => match Config::path() {
+            Some(p) => println!("{}", p.display()),
+            None => renderer.print_error("Could not determine config path."),
+        },
     }
     Ok(())
 }
@@ -432,17 +466,29 @@ async fn run_config(cmd: ConfigCmd, config: &mut Config, renderer: &Renderer) ->
 
 fn apply_config_set(config: &mut Config, key: &str, value: &str) -> Result<(), WikiError> {
     match key {
-        "language" | "lang" => { config.language       = value.into(); }
-        "theme"             => { config.theme          = value.into(); }
-        "open_urls"         => { config.open_urls      = parse_bool(value)?; }
-        "pager"             => { config.pager          = parse_bool(value)?; }
-        "show_image_alt"    => { config.show_image_alt = parse_bool(value)?; }
-        "width"             => {
-            config.width = value.parse::<u16>()
+        "language" | "lang" => {
+            config.language = value.into();
+        }
+        "theme" => {
+            config.theme = value.into();
+        }
+        "open_urls" => {
+            config.open_urls = parse_bool(value)?;
+        }
+        "pager" => {
+            config.pager = parse_bool(value)?;
+        }
+        "show_image_alt" => {
+            config.show_image_alt = parse_bool(value)?;
+        }
+        "width" => {
+            config.width = value
+                .parse::<u16>()
                 .map_err(|_| WikiError::Other(format!("'{value}' is not a valid width")))?;
         }
         "results_count" => {
-            config.results_count = value.parse::<u8>()
+            config.results_count = value
+                .parse::<u8>()
                 .map_err(|_| WikiError::Other(format!("'{value}' is not a valid count")))?;
         }
         k if k.starts_with("custom_theme.") => {
@@ -454,25 +500,29 @@ fn apply_config_set(config: &mut Config, key: &str, value: &str) -> Result<(), W
     Ok(())
 }
 
-fn apply_theme_field(theme: &mut wikiwiki::Theme, field: &str, value: &str) -> Result<(), WikiError> {
-    wikiwiki::theme::hex_to_rgb(value)?;        // validates hex first
+fn apply_theme_field(
+    theme: &mut wikiwiki::Theme,
+    field: &str,
+    value: &str,
+) -> Result<(), WikiError> {
+    wikiwiki::theme::hex_to_rgb(value)?; // validates hex first
     let v = value.to_string();
     match field {
-        "title"          => theme.title          = v,
-        "heading"        => theme.heading        = v,
-        "subheading"     => theme.subheading     = v,
-        "body"           => theme.body           = v,
-        "link"           => theme.link           = v,
-        "bold"           => theme.bold           = v,
-        "italic"         => theme.italic         = v,
-        "code"           => theme.code           = v,
-        "result_title"   => theme.result_title   = v,
+        "title" => theme.title = v,
+        "heading" => theme.heading = v,
+        "subheading" => theme.subheading = v,
+        "body" => theme.body = v,
+        "link" => theme.link = v,
+        "bold" => theme.bold = v,
+        "italic" => theme.italic = v,
+        "code" => theme.code = v,
+        "result_title" => theme.result_title = v,
         "result_snippet" => theme.result_snippet = v,
-        "result_index"   => theme.result_index   = v,
-        "separator"      => theme.separator      = v,
-        "error"          => theme.error          = v,
-        "success"        => theme.success        = v,
-        "dim"            => theme.dim            = v,
+        "result_index" => theme.result_index = v,
+        "separator" => theme.separator = v,
+        "error" => theme.error = v,
+        "success" => theme.success = v,
+        "dim" => theme.dim = v,
         _ => return Err(WikiError::Other(format!("Unknown theme field: '{field}'"))),
     }
     Ok(())
@@ -480,9 +530,11 @@ fn apply_theme_field(theme: &mut wikiwiki::Theme, field: &str, value: &str) -> R
 
 fn parse_bool(s: &str) -> Result<bool, WikiError> {
     match s.to_lowercase().as_str() {
-        "true"|"1"|"yes"|"on"  => Ok(true),
-        "false"|"0"|"no"|"off" => Ok(false),
-        _ => Err(WikiError::Other(format!("'{s}' is not a boolean (use true/false)"))),
+        "true" | "1" | "yes" | "on" => Ok(true),
+        "false" | "0" | "no" | "off" => Ok(false),
+        _ => Err(WikiError::Other(format!(
+            "'{s}' is not a boolean (use true/false)"
+        ))),
     }
 }
 
@@ -490,19 +542,31 @@ fn parse_bool(s: &str) -> Result<bool, WikiError> {
 
 fn filter_section(content: &str, keyword: &str) -> String {
     let kw = keyword.to_lowercase();
-    let mut out   = String::new();
-    let mut in_m  = false;
-    let mut buf   = String::new();
+    let mut out = String::new();
+    let mut in_m = false;
+    let mut buf = String::new();
 
     for line in content.lines() {
         if line.starts_with('#') {
-            if in_m && !buf.is_empty() { out.push_str(&buf); buf.clear(); }
+            if in_m && !buf.is_empty() {
+                out.push_str(&buf);
+                buf.clear();
+            }
             in_m = line.to_lowercase().contains(&kw);
         }
-        if in_m { buf.push_str(line); buf.push('\n'); }
+        if in_m {
+            buf.push_str(line);
+            buf.push('\n');
+        }
     }
-    if in_m && !buf.is_empty() { out.push_str(&buf); }
-    if out.is_empty() { content.to_string() } else { out }
+    if in_m && !buf.is_empty() {
+        out.push_str(&buf);
+    }
+    if out.is_empty() {
+        content.to_string()
+    } else {
+        out
+    }
 }
 
 fn make_spinner(msg: &str) -> ProgressBar {
@@ -510,7 +574,7 @@ fn make_spinner(msg: &str) -> ProgressBar {
     pb.set_style(
         ProgressStyle::with_template("{spinner:.cyan} {msg}")
             .unwrap()
-            .tick_strings(&["⠋","⠙","⠹","⠸","⠼","⠴","⠦","⠧","⠇","⠏"]),
+            .tick_strings(&["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]),
     );
     pb.set_message(msg.to_string());
     pb.enable_steady_tick(std::time::Duration::from_millis(80));

@@ -108,7 +108,9 @@ impl Article {
     /// - The title ending with "(disambiguation)"
     /// - The content starting with the canonical disambiguation phrase
     pub fn is_disambiguation(&self) -> bool {
-        self.categories.iter().any(|c| c.to_lowercase().contains("disambiguation"))
+        self.categories
+            .iter()
+            .any(|c| c.to_lowercase().contains("disambiguation"))
             || self.title.to_lowercase().ends_with("(disambiguation)")
             || self.content.trim_start().starts_with(&self.title)
                 && self.content.contains("may refer to")
@@ -138,16 +140,32 @@ impl Article {
             })
             .map(|line| {
                 let parts: Vec<&str> = line.splitn(2, ", ").collect();
-                let (title, description) = if parts[0].trim().eq_ignore_ascii_case(page_title) && parts.len() > 1 {
-                    // Same name — description is the differentiator, use it as title hint
-                    (format!("{} {}", page_title,
-                        parts[1].split_whitespace().take(4).collect::<Vec<_>>().join(" ")),
-                     parts[1].to_string())
-                } else {
-                    (parts[0].trim().to_string(),
-                     parts.get(1).copied().unwrap_or("").to_string())
-                };
-                DisambigOption { label: line.to_string(), title, description }
+                let (title, description) =
+                    if parts[0].trim().eq_ignore_ascii_case(page_title) && parts.len() > 1 {
+                        // Same name — description is the differentiator, use it as title hint
+                        (
+                            format!(
+                                "{} {}",
+                                page_title,
+                                parts[1]
+                                    .split_whitespace()
+                                    .take(4)
+                                    .collect::<Vec<_>>()
+                                    .join(" ")
+                            ),
+                            parts[1].to_string(),
+                        )
+                    } else {
+                        (
+                            parts[0].trim().to_string(),
+                            parts.get(1).copied().unwrap_or("").to_string(),
+                        )
+                    };
+                DisambigOption {
+                    label: line.to_string(),
+                    title,
+                    description,
+                }
             })
             .collect()
     }
@@ -202,20 +220,20 @@ impl WikiClient {
 
     /// Search Wikipedia for `query`, returning up to `limit` results.
     pub async fn search(&self, query: &str, limit: u8) -> Result<Vec<SearchResult>, WikiError> {
-        let url  = self.config.api_url();
-        let lim  = limit.to_string();
+        let url = self.config.api_url();
+        let lim = limit.to_string();
         let resp = self
             .http
             .get(&url)
             .query(&[
-                ("action",        "query"),
-                ("list",          "search"),
-                ("srsearch",      query),
-                ("srlimit",       &lim),
-                ("srprop",        "snippet|wordcount"),
-                ("format",        "json"),
+                ("action", "query"),
+                ("list", "search"),
+                ("srsearch", query),
+                ("srlimit", &lim),
+                ("srprop", "snippet|wordcount"),
+                ("format", "json"),
                 ("formatversion", "2"),
-                ("utf8",          "1"),
+                ("utf8", "1"),
             ])
             .send()
             .await?;
@@ -232,10 +250,10 @@ impl WikiClient {
                 q.search
                     .into_iter()
                     .map(|i| SearchResult {
-                        title:     i.title,
-                        snippet:   strip_html(&i.snippet),
+                        title: i.title,
+                        snippet: strip_html(&i.snippet),
                         wordcount: i.wordcount,
-                        pageid:    i.pageid,
+                        pageid: i.pageid,
                     })
                     .collect()
             })
@@ -246,23 +264,23 @@ impl WikiClient {
 
     /// Fetch a full article by title as plain text with section headings.
     pub async fn fetch_article(&self, title: &str) -> Result<Article, WikiError> {
-        let url  = self.config.api_url();
+        let url = self.config.api_url();
         let lang = self.config.language.clone();
 
         let resp = self
             .http
             .get(&url)
             .query(&[
-                ("action",          "query"),
-                ("titles",          title),
-                ("prop",            "extracts|categories"),
-                ("explaintext",     "1"),
-                ("exsectionformat", "wiki"),   // section headings as == H ==
-                ("cllimit",         "50"),
-                ("format",          "json"),
-                ("formatversion",   "2"),      // pages is an ARRAY
-                ("utf8",            "1"),
-                ("redirects",       "1"),      // follow redirects automatically
+                ("action", "query"),
+                ("titles", title),
+                ("prop", "extracts|categories"),
+                ("explaintext", "1"),
+                ("exsectionformat", "wiki"), // section headings as == H ==
+                ("cllimit", "50"),
+                ("format", "json"),
+                ("formatversion", "2"), // pages is an ARRAY
+                ("utf8", "1"),
+                ("redirects", "1"), // follow redirects automatically
             ])
             .send()
             .await?;
@@ -307,11 +325,11 @@ impl WikiClient {
             .collect();
 
         Ok(Article {
-            title:      page.title,
+            title: page.title,
             content,
-            url:        article_url,
+            url: article_url,
             lang,
-            pageid:     page.pageid,
+            pageid: page.pageid,
             categories,
             summary,
         })
@@ -319,22 +337,22 @@ impl WikiClient {
 
     /// Fetch only the intro/summary of an article.
     pub async fn fetch_summary(&self, title: &str) -> Result<Article, WikiError> {
-        let url  = self.config.api_url();
+        let url = self.config.api_url();
         let lang = self.config.language.clone();
 
         let resp = self
             .http
             .get(&url)
             .query(&[
-                ("action",        "query"),
-                ("titles",        title),
-                ("prop",          "extracts"),
-                ("exintro",       "1"),
-                ("explaintext",   "1"),
-                ("format",        "json"),
+                ("action", "query"),
+                ("titles", title),
+                ("prop", "extracts"),
+                ("exintro", "1"),
+                ("explaintext", "1"),
+                ("format", "json"),
                 ("formatversion", "2"),
-                ("utf8",          "1"),
-                ("redirects",     "1"),
+                ("utf8", "1"),
+                ("redirects", "1"),
             ])
             .send()
             .await?;
@@ -363,12 +381,12 @@ impl WikiClient {
         let summary = page.extract.trim().to_string();
 
         Ok(Article {
-            title:      page.title.clone(),
-            summary:    summary.clone(),
-            content:    summary,
-            url:        article_url,
+            title: page.title.clone(),
+            summary: summary.clone(),
+            content: summary,
+            url: article_url,
             lang,
-            pageid:     page.pageid,
+            pageid: page.pageid,
             categories: vec![],
         })
     }
@@ -390,9 +408,9 @@ impl WikiClient {
             .http
             .get(&url)
             .query(&[
-                ("action",        "query"),
-                ("pageids",       &pageid.to_string()),
-                ("format",        "json"),
+                ("action", "query"),
+                ("pageids", &pageid.to_string()),
+                ("format", "json"),
                 ("formatversion", "2"),
             ])
             .send()
@@ -434,10 +452,13 @@ impl WikiClient {
     /// Fetch the raw wikitext of a page (used for disambiguation link extraction). (used for disambiguation link extraction).
     pub(crate) async fn fetch_wikitext(&self, title: &str) -> Result<String, WikiError> {
         #[derive(Deserialize, Debug)]
-        struct RevBody { pages: Vec<RevPage> }
+        struct RevBody {
+            pages: Vec<RevPage>,
+        }
         #[derive(Deserialize, Debug)]
         struct RevPage {
-            #[serde(default)] revisions: Vec<Revision>,
+            #[serde(default)]
+            revisions: Vec<Revision>,
         }
         #[derive(Deserialize, Debug)]
         struct Revision {
@@ -445,29 +466,34 @@ impl WikiClient {
             slots: Slots,
         }
         #[derive(Deserialize, Debug)]
-        struct Slots { main: SlotContent }
+        struct Slots {
+            main: SlotContent,
+        }
         #[derive(Deserialize, Debug)]
         struct SlotContent {
             #[serde(rename = "content", default)]
             content: String,
         }
 
-        let resp = self.http
+        let resp = self
+            .http
             .get(self.config.api_url())
             .query(&[
-                ("action",        "query"),
-                ("titles",        title),
-                ("prop",          "revisions"),
-                ("rvprop",        "content"),
-                ("rvslots",       "main"),
-                ("format",        "json"),
+                ("action", "query"),
+                ("titles", title),
+                ("prop", "revisions"),
+                ("rvprop", "content"),
+                ("rvslots", "main"),
+                ("format", "json"),
                 ("formatversion", "2"),
-                ("redirects",     "1"),
+                ("redirects", "1"),
             ])
-            .send().await?;
+            .send()
+            .await?;
 
         let body: ApiQuery<RevBody> = resp.json().await?;
-        Ok(body.query
+        Ok(body
+            .query
             .and_then(|q| q.pages.into_iter().next())
             .and_then(|p| p.revisions.into_iter().next())
             .map(|r| r.slots.main.content)
@@ -495,32 +521,32 @@ pub fn wiki_sections_to_markdown(text: &str) -> String {
     let re2 = Regex::new(r"(?m)^==\s*(.+?)\s*==$").unwrap();
     let re_blank = Regex::new(r"\n{3,}").unwrap();
 
-    let t = re4.replace_all(text,  "#### $1");
-    let t = re3.replace_all(&t,    "### $1");
-    let t = re2.replace_all(&t,    "## $1");
+    let t = re4.replace_all(text, "#### $1");
+    let t = re3.replace_all(&t, "### $1");
+    let t = re2.replace_all(&t, "## $1");
     re_blank.replace_all(&t, "\n\n").trim().to_string()
 }
 
 /// Strip HTML tags and decode entities from a string.
 pub fn strip_html(html: &str) -> String {
-    let re  = regex::Regex::new(r"<[^>]+>").unwrap();
+    let re = regex::Regex::new(r"<[^>]+>").unwrap();
     let out = re.replace_all(html, "");
     decode_entities(&out)
 }
 
 fn decode_entities(s: &str) -> String {
-    s.replace("&amp;",    "&")
-     .replace("&lt;",     "<")
-     .replace("&gt;",     ">")
-     .replace("&quot;",   "\"")
-     .replace("&#039;",   "'")
-     .replace("&#39;",    "'")
-     .replace("&nbsp;",   " ")
-     .replace("&mdash;",  "—")
-     .replace("&ndash;",  "–")
-     .replace("&hellip;", "…")
-     .replace("&laquo;",  "«")
-     .replace("&raquo;",  "»")
+    s.replace("&amp;", "&")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", "\"")
+        .replace("&#039;", "'")
+        .replace("&#39;", "'")
+        .replace("&nbsp;", " ")
+        .replace("&mdash;", "—")
+        .replace("&ndash;", "–")
+        .replace("&hellip;", "…")
+        .replace("&laquo;", "«")
+        .replace("&raquo;", "»")
 }
 
 fn urlencode(title: &str) -> String {
@@ -542,7 +568,7 @@ pub fn parse_wikitext_disambig(wikitext: &str, page_title: &str) -> Vec<Disambig
     use regex::Regex;
 
     // Matches [[Target]] or [[Target|Label]] anywhere in a string
-    let re_link  = Regex::new(r"\[\[([^\]|]+)(?:\|[^\]]*)?\]\]").unwrap();
+    let re_link = Regex::new(r"\[\[([^\]|]+)(?:\|[^\]]*)?\]\]").unwrap();
     // Strip all wikitext markup for the label
     let re_strip = Regex::new(r"\[\[[^\]]*\]\]|\{\{[^}]*\}\}|'{2,}").unwrap();
 
@@ -571,7 +597,7 @@ pub fn parse_wikitext_disambig(wikitext: &str, page_title: &str) -> Vec<Disambig
                 let inner = &c[0];
                 let content = inner.trim_start_matches('[').trim_end_matches(']');
                 if let Some(pipe) = content.find('|') {
-                    content[pipe+1..].to_string()
+                    content[pipe + 1..].to_string()
                 } else {
                     content.to_string()
                 }
@@ -579,11 +605,7 @@ pub fn parse_wikitext_disambig(wikitext: &str, page_title: &str) -> Vec<Disambig
             let label = label.trim().to_string();
 
             // Description = everything after the first comma in the label
-            let description = label
-                .splitn(2, ", ")
-                .nth(1)
-                .unwrap_or("")
-                .to_string();
+            let description = label.split_once(", ").map(|x| x.1).unwrap_or("").to_string();
 
             // Skip if the link just points back to the disambiguation page itself
             if link_target.eq_ignore_ascii_case(page_title) {
@@ -610,8 +632,8 @@ mod tests {
     #[test]
     fn strip_html_tags_and_entities() {
         assert_eq!(strip_html("<b>hello</b> &amp; world"), "hello & world");
-        assert_eq!(strip_html("&#039;quoted&#039;"),       "'quoted'");
-        assert_eq!(strip_html("AT&amp;T"),                 "AT&T");
+        assert_eq!(strip_html("&#039;quoted&#039;"), "'quoted'");
+        assert_eq!(strip_html("AT&amp;T"), "AT&T");
     }
 
     #[test]
@@ -625,7 +647,10 @@ mod tests {
         let opts = parse_wikitext_disambig(wikitext, "Michael Orlando");
         assert_eq!(opts.len(), 2, "expected 2 options, got: {:?}", opts);
         assert_eq!(opts[0].title, "Vampires Everywhere!");
-        assert_eq!(opts[1].title, "National Counterintelligence and Security Center");
+        assert_eq!(
+            opts[1].title,
+            "National Counterintelligence and Security Center"
+        );
     }
 
     #[test]

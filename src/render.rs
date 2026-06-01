@@ -14,18 +14,18 @@ use crate::theme::Theme;
 
 // ─── Emoji constants ──────────────────────────────────────────────────────────
 
-const EMOJI_TITLE:     &str = "📖";
-const EMOJI_HEADING:   &str = "📌";
-const EMOJI_SUBHEAD:   &str = "🔹";
-const EMOJI_BULLET:    &str = "•";
-const EMOJI_LINK:      &str = "🔗";
-const EMOJI_SEARCH:    &str = "🔍";
-const EMOJI_RESULT:    &str = "📄";
-const EMOJI_CATEGORY:  &str = "🏷️";
+const EMOJI_TITLE: &str = "📖";
+const EMOJI_HEADING: &str = "📌";
+const EMOJI_SUBHEAD: &str = "🔹";
+const EMOJI_BULLET: &str = "•";
+const EMOJI_LINK: &str = "🔗";
+const EMOJI_SEARCH: &str = "🔍";
+const EMOJI_RESULT: &str = "📄";
+const EMOJI_CATEGORY: &str = "🏷️";
 const EMOJI_SEPARATOR: &str = "─";
-const EMOJI_SUMMARY:   &str = "💡";
-const EMOJI_WARN:      &str = "⚠️";
-const EMOJI_OK:        &str = "✅";
+const EMOJI_SUMMARY: &str = "💡";
+const EMOJI_WARN: &str = "⚠️";
+const EMOJI_OK: &str = "✅";
 
 // ─── Renderer ─────────────────────────────────────────────────────────────────
 
@@ -53,7 +53,11 @@ pub struct Renderer {
 impl Renderer {
     /// Create a renderer that writes to stdout.
     pub fn stdout(theme: Theme, width: u16, emoji: bool) -> Self {
-        Self { theme, width, emoji }
+        Self {
+            theme,
+            width,
+            emoji,
+        }
     }
 
     /// Backwards-compatible constructor alias.
@@ -63,10 +67,16 @@ impl Renderer {
 
     // ── Internal helpers ──────────────────────────────────────────────────────
 
-    fn w(&self) -> usize { self.width as usize }
+    fn w(&self) -> usize {
+        self.width as usize
+    }
 
     fn em<'a>(&self, icon: &'a str) -> &'a str {
-        if self.emoji { icon } else { "" }
+        if self.emoji {
+            icon
+        } else {
+            ""
+        }
     }
 
     fn sep_line(&self) -> String {
@@ -95,7 +105,8 @@ impl Renderer {
     /// Render search results into a colored `String`.
     pub fn search_to_string(&self, query: &str, results: &[SearchResult]) -> String {
         let mut buf = Vec::new();
-        self.write_search_results(&mut buf, query, results).unwrap_or(());
+        self.write_search_results(&mut buf, query, results)
+            .unwrap_or(());
         String::from_utf8_lossy(&buf).into_owned()
     }
 
@@ -149,21 +160,22 @@ impl Renderer {
     pub fn render_config_info(&self, config: &Config) {
         println!();
         println!("{}", self.theme.title("⚙️  wikiwiki Configuration"));
-        println!("{}", self.theme.separator(&self.sep_line()));
+        println!("{}", self.theme.separator(self.sep_line()));
         let rows = [
-            ("language",      config.language.clone()),
-            ("theme",         config.theme.clone()),
-            ("width",         config.width.to_string()),
-            ("pager",         config.pager.to_string()),
+            ("language", config.language.clone()),
+            ("theme", config.theme.clone()),
+            ("width", config.width.to_string()),
+            ("pager", config.pager.to_string()),
             ("results_count", config.results_count.to_string()),
-            ("open_urls",     config.open_urls.to_string()),
+            ("open_urls", config.open_urls.to_string()),
         ];
         for (k, v) in &rows {
             println!("  {:<20} {}", self.theme.heading(k), self.theme.body(v));
         }
         if let Some(path) = Config::path() {
             println!();
-            println!("  {:<20} {}",
+            println!(
+                "  {:<20} {}",
                 self.theme.dim("config file"),
                 self.theme.link(path.display().to_string().as_str())
             );
@@ -175,36 +187,54 @@ impl Renderer {
     pub fn render_themes_list(&self) {
         println!();
         println!("{}", self.theme.title("🎨  Available Themes"));
-        println!("{}", self.theme.separator(&self.sep_line()));
+        println!("{}", self.theme.separator(self.sep_line()));
         let active = self.theme_name();
         for t in &["dark", "light", "solarized", "nord", "dracula", "custom"] {
             let marker = if *t == active { " ← active" } else { "" };
-            println!("  {} {}{}",
+            println!(
+                "  {} {}{}",
                 self.em("🖌️"),
                 self.theme.heading(t),
                 self.theme.dim(marker)
             );
         }
         println!();
-        println!("{}", self.theme.dim("  Set theme: wikiwiki config set theme <name>"));
+        println!(
+            "{}",
+            self.theme
+                .dim("  Set theme: wikiwiki config set theme <name>")
+        );
         println!();
     }
 
     /// Render a disambiguation page options to stdout as a numbered list.
     pub fn render_disambiguation(&self, article: &Article, opts: &[DisambigOption]) {
         println!();
-        println!("{}", self.theme.title(&format!("🔀  {} — disambiguation", article.title)));
-        println!("{}", self.theme.separator(&self.sep_line()));
-        println!("{}", self.theme.dim("  This page has multiple meanings. Choose one:"));
+        println!(
+            "{}",
+            self.theme
+                .title(format!("🔀  {} — disambiguation", article.title))
+        );
+        println!("{}", self.theme.separator(self.sep_line()));
+        println!(
+            "{}",
+            self.theme
+                .dim("  This page has multiple meanings. Choose one:")
+        );
         println!();
         for (i, opt) in opts.iter().enumerate() {
-            println!("  {} {}",
-                self.theme.result_index(&format!("[{}]", i + 1)),
+            println!(
+                "  {} {}",
+                self.theme.result_index(format!("[{}]", i + 1)),
                 self.theme.result_snippet(&opt.label)
             );
         }
         println!();
-        println!("  {} {}", self.theme.result_index("[0]"), self.theme.dim("quit / go back"));
+        println!(
+            "  {} {}",
+            self.theme.result_index("[0]"),
+            self.theme.dim("quit / go back")
+        );
         println!();
     }
 
@@ -214,7 +244,7 @@ impl Renderer {
             "#268BD2" => "solarized",
             "#8BE9FD" => "dracula",
             "#005F87" => "light",
-            _         => "dark",
+            _ => "dark",
         }
     }
 
@@ -224,7 +254,7 @@ impl Renderer {
         writeln!(w)?;
         let title_line = format!("{} {}", self.em(EMOJI_TITLE), article.title);
         writeln!(w, "{}", self.theme.title(&title_line))?;
-        writeln!(w, "{}", self.theme.separator(&self.sep_line()))?;
+        writeln!(w, "{}", self.theme.separator(self.sep_line()))?;
 
         let url_line = format!("{} {}", self.em(EMOJI_LINK), article.url);
         writeln!(w, "{}", self.theme.link(&url_line))?;
@@ -234,13 +264,16 @@ impl Renderer {
 
         if !article.categories.is_empty() {
             writeln!(w)?;
-            writeln!(w, "{}", self.theme.separator(&self.sep_line()))?;
+            writeln!(w, "{}", self.theme.separator(self.sep_line()))?;
             let cat_hdr = format!("{} Categories:", self.em(EMOJI_CATEGORY));
             writeln!(w, "{}", self.theme.dim(&cat_hdr))?;
-            let cats: Vec<String> = article.categories.iter().take(10)
+            let cats: Vec<String> = article
+                .categories
+                .iter()
+                .take(10)
                 .map(|c| format!("  [{}]", c))
                 .collect();
-            writeln!(w, "{}", self.theme.dim(&cats.join("  ")))?;
+            writeln!(w, "{}", self.theme.dim(cats.join("  ")))?;
         }
         writeln!(w)?;
         Ok(())
@@ -250,7 +283,7 @@ impl Renderer {
         writeln!(w)?;
         let hdr = format!("{} {}", self.em(EMOJI_SUMMARY), article.title);
         writeln!(w, "{}", self.theme.title(&hdr))?;
-        writeln!(w, "{}", self.theme.separator(&self.sep_line()))?;
+        writeln!(w, "{}", self.theme.separator(self.sep_line()))?;
         let url_line = format!("{} {}", self.em(EMOJI_LINK), article.url);
         writeln!(w, "{}", self.theme.link(&url_line))?;
         writeln!(w)?;
@@ -265,12 +298,21 @@ impl Renderer {
         Ok(())
     }
 
-    fn write_search_results(&self, w: &mut dyn Write, query: &str, results: &[SearchResult]) -> io::Result<()> {
+    fn write_search_results(
+        &self,
+        w: &mut dyn Write,
+        query: &str,
+        results: &[SearchResult],
+    ) -> io::Result<()> {
         writeln!(w)?;
-        let hdr = format!("{} Search: \"{}\"  ({} results)",
-            self.em(EMOJI_SEARCH), query, results.len());
+        let hdr = format!(
+            "{} Search: \"{}\"  ({} results)",
+            self.em(EMOJI_SEARCH),
+            query,
+            results.len()
+        );
         writeln!(w, "{}", self.theme.title(&hdr))?;
-        writeln!(w, "{}", self.theme.separator(&self.sep_line()))?;
+        writeln!(w, "{}", self.theme.separator(self.sep_line()))?;
 
         if results.is_empty() {
             let msg = format!("{} No results found for \"{}\"", self.em(EMOJI_WARN), query);
@@ -281,13 +323,19 @@ impl Renderer {
         for (i, r) in results.iter().enumerate() {
             writeln!(w)?;
             let idx = format!("[{}]", i + 1);
-            writeln!(w, "{} {} {}",
+            writeln!(
+                w,
+                "{} {} {}",
                 self.theme.result_index(&idx),
                 self.em(EMOJI_RESULT),
                 self.theme.result_title(&r.title)
             )?;
             if r.wordcount > 0 {
-                writeln!(w, "{}", self.theme.dim(&format!("    {} words", r.wordcount)))?;
+                writeln!(
+                    w,
+                    "{}",
+                    self.theme.dim(format!("    {} words", r.wordcount))
+                )?;
             }
             if !r.snippet.is_empty() {
                 let clean = r.snippet.replace('\n', " ");
@@ -298,8 +346,13 @@ impl Renderer {
         }
 
         writeln!(w)?;
-        writeln!(w, "{}", self.theme.separator(&self.sep_line()))?;
-        writeln!(w, "{}", self.theme.dim("  tip: use `wikiwiki get \"<title>\"` to read an article"))?;
+        writeln!(w, "{}", self.theme.separator(self.sep_line()))?;
+        writeln!(
+            w,
+            "{}",
+            self.theme
+                .dim("  tip: use `wikiwiki get \"<title>\"` to read an article")
+        )?;
         writeln!(w)?;
         Ok(())
     }
@@ -308,19 +361,33 @@ impl Renderer {
         for line in text.lines() {
             let t = line.trim_end();
             if let Some(rest) = t.strip_prefix("#### ") {
-                writeln!(w, "{}", self.theme.italic_text(&format!("  {rest}")))?;
+                writeln!(w, "{}", self.theme.italic_text(format!("  {rest}")))?;
             } else if let Some(rest) = t.strip_prefix("### ") {
-                writeln!(w, "  {}{}", self.em(EMOJI_SUBHEAD), self.theme.subheading(&format!(" {rest}")))?;
+                writeln!(
+                    w,
+                    "  {}{}",
+                    self.em(EMOJI_SUBHEAD),
+                    self.theme.subheading(format!(" {rest}"))
+                )?;
             } else if let Some(rest) = t.strip_prefix("## ") {
                 writeln!(w)?;
-                writeln!(w, "{}{}", self.em(EMOJI_HEADING), self.theme.heading(&format!(" {rest}")))?;
-                writeln!(w, "{}", self.theme.separator(&"─".repeat(rest.chars().count() + 2)))?;
+                writeln!(
+                    w,
+                    "{}{}",
+                    self.em(EMOJI_HEADING),
+                    self.theme.heading(format!(" {rest}"))
+                )?;
+                writeln!(
+                    w,
+                    "{}",
+                    self.theme.separator("─".repeat(rest.chars().count() + 2))
+                )?;
             } else if let Some(rest) = t.strip_prefix("# ") {
                 writeln!(w)?;
                 writeln!(w, "{}", self.theme.title(rest))?;
             } else if t.starts_with("  •") {
                 let content = t.trim_start_matches("  •").trim();
-                let bullet  = format!("  {} ", EMOJI_BULLET);
+                let bullet = format!("  {} ", EMOJI_BULLET);
                 for line in self.wrap(content, &bullet) {
                     writeln!(w, "{}", self.theme.body(&line))?;
                 }
@@ -348,13 +415,13 @@ mod tests {
     fn article_to_string_contains_title() {
         let r = renderer();
         let article = Article {
-            title:      "Test Article".into(),
-            content:    "Some content.".into(),
-            url:        "https://en.wikipedia.org/wiki/Test".into(),
-            lang:       "en".into(),
-            pageid:     1,
+            title: "Test Article".into(),
+            content: "Some content.".into(),
+            url: "https://en.wikipedia.org/wiki/Test".into(),
+            lang: "en".into(),
+            pageid: 1,
             categories: vec![],
-            summary:    "Some content.".into(),
+            summary: "Some content.".into(),
         };
         let s = r.article_to_string(&article);
         assert!(s.contains("Test Article"), "got: {s}");

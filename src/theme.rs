@@ -113,105 +113,105 @@ impl Theme {
     /// Classic dark-terminal theme (default).
     pub fn dark() -> Self {
         Self {
-            title:          "#61AFEF".into(),
-            heading:        "#E5C07B".into(),
-            subheading:     "#98C379".into(),
-            body:           "#ABB2BF".into(),
-            link:           "#56B6C2".into(),
-            bold:           "#E06C75".into(),
-            italic:         "#C678DD".into(),
-            code:           "#282C34".into(),
-            result_title:   "#61AFEF".into(),
+            title: "#61AFEF".into(),
+            heading: "#E5C07B".into(),
+            subheading: "#98C379".into(),
+            body: "#ABB2BF".into(),
+            link: "#56B6C2".into(),
+            bold: "#E06C75".into(),
+            italic: "#C678DD".into(),
+            code: "#282C34".into(),
+            result_title: "#61AFEF".into(),
             result_snippet: "#ABB2BF".into(),
-            result_index:   "#5C6370".into(),
-            separator:      "#3E4451".into(),
-            error:          "#E06C75".into(),
-            success:        "#98C379".into(),
-            dim:            "#5C6370".into(),
+            result_index: "#5C6370".into(),
+            separator: "#3E4451".into(),
+            error: "#E06C75".into(),
+            success: "#98C379".into(),
+            dim: "#5C6370".into(),
         }
     }
 
     /// Light-terminal theme.
     pub fn light() -> Self {
         Self {
-            title:          "#005F87".into(),
-            heading:        "#AF5F00".into(),
-            subheading:     "#008700".into(),
-            body:           "#1C1C1C".into(),
-            link:           "#0087AF".into(),
-            bold:           "#AF0000".into(),
-            italic:         "#875FAF".into(),
-            code:           "#EEEEEE".into(),
-            result_title:   "#005F87".into(),
+            title: "#005F87".into(),
+            heading: "#AF5F00".into(),
+            subheading: "#008700".into(),
+            body: "#1C1C1C".into(),
+            link: "#0087AF".into(),
+            bold: "#AF0000".into(),
+            italic: "#875FAF".into(),
+            code: "#EEEEEE".into(),
+            result_title: "#005F87".into(),
             result_snippet: "#4E4E4E".into(),
-            result_index:   "#9E9E9E".into(),
-            separator:      "#BCBCBC".into(),
-            error:          "#AF0000".into(),
-            success:        "#008700".into(),
-            dim:            "#9E9E9E".into(),
+            result_index: "#9E9E9E".into(),
+            separator: "#BCBCBC".into(),
+            error: "#AF0000".into(),
+            success: "#008700".into(),
+            dim: "#9E9E9E".into(),
         }
     }
 
     /// Solarized Dark theme.
     pub fn solarized() -> Self {
         Self {
-            title:          "#268BD2".into(),
-            heading:        "#B58900".into(),
-            subheading:     "#2AA198".into(),
-            body:           "#839496".into(),
-            link:           "#2AA198".into(),
-            bold:           "#DC322F".into(),
-            italic:         "#D33682".into(),
-            code:           "#073642".into(),
-            result_title:   "#268BD2".into(),
+            title: "#268BD2".into(),
+            heading: "#B58900".into(),
+            subheading: "#2AA198".into(),
+            body: "#839496".into(),
+            link: "#2AA198".into(),
+            bold: "#DC322F".into(),
+            italic: "#D33682".into(),
+            code: "#073642".into(),
+            result_title: "#268BD2".into(),
             result_snippet: "#657B83".into(),
-            result_index:   "#586E75".into(),
-            separator:      "#073642".into(),
-            error:          "#DC322F".into(),
-            success:        "#859900".into(),
-            dim:            "#586E75".into(),
+            result_index: "#586E75".into(),
+            separator: "#073642".into(),
+            error: "#DC322F".into(),
+            success: "#859900".into(),
+            dim: "#586E75".into(),
         }
     }
 
     /// Nord theme.
     pub fn nord() -> Self {
         Self {
-            title:          "#88C0D0".into(),
-            heading:        "#EBCB8B".into(),
-            subheading:     "#A3BE8C".into(),
-            body:           "#D8DEE9".into(),
-            link:           "#81A1C1".into(),
-            bold:           "#BF616A".into(),
-            italic:         "#B48EAD".into(),
-            code:           "#2E3440".into(),
-            result_title:   "#88C0D0".into(),
+            title: "#88C0D0".into(),
+            heading: "#EBCB8B".into(),
+            subheading: "#A3BE8C".into(),
+            body: "#D8DEE9".into(),
+            link: "#81A1C1".into(),
+            bold: "#BF616A".into(),
+            italic: "#B48EAD".into(),
+            code: "#2E3440".into(),
+            result_title: "#88C0D0".into(),
             result_snippet: "#D8DEE9".into(),
-            result_index:   "#4C566A".into(),
-            separator:      "#3B4252".into(),
-            error:          "#BF616A".into(),
-            success:        "#A3BE8C".into(),
-            dim:            "#4C566A".into(),
+            result_index: "#4C566A".into(),
+            separator: "#3B4252".into(),
+            error: "#BF616A".into(),
+            success: "#A3BE8C".into(),
+            dim: "#4C566A".into(),
         }
     }
 
     /// Dracula theme.
     pub fn dracula() -> Self {
         Self {
-            title:          "#8BE9FD".into(),
-            heading:        "#F1FA8C".into(),
-            subheading:     "#50FA7B".into(),
-            body:           "#F8F8F2".into(),
-            link:           "#8BE9FD".into(),
-            bold:           "#FF5555".into(),
-            italic:         "#FF79C6".into(),
-            code:           "#282A36".into(),
-            result_title:   "#BD93F9".into(),
+            title: "#8BE9FD".into(),
+            heading: "#F1FA8C".into(),
+            subheading: "#50FA7B".into(),
+            body: "#F8F8F2".into(),
+            link: "#8BE9FD".into(),
+            bold: "#FF5555".into(),
+            italic: "#FF79C6".into(),
+            code: "#282A36".into(),
+            result_title: "#BD93F9".into(),
             result_snippet: "#F8F8F2".into(),
-            result_index:   "#6272A4".into(),
-            separator:      "#44475A".into(),
-            error:          "#FF5555".into(),
-            success:        "#50FA7B".into(),
-            dim:            "#6272A4".into(),
+            result_index: "#6272A4".into(),
+            separator: "#44475A".into(),
+            error: "#FF5555".into(),
+            success: "#50FA7B".into(),
+            dim: "#6272A4".into(),
         }
     }
 
@@ -223,12 +223,12 @@ impl Theme {
     /// back to the user-supplied custom theme from config.
     pub fn by_name(name: &str) -> Option<Self> {
         match name.to_lowercase().as_str() {
-            "dark"      => Some(Self::dark()),
-            "light"     => Some(Self::light()),
+            "dark" => Some(Self::dark()),
+            "light" => Some(Self::light()),
             "solarized" => Some(Self::solarized()),
-            "nord"      => Some(Self::nord()),
-            "dracula"   => Some(Self::dracula()),
-            _           => None,
+            "nord" => Some(Self::nord()),
+            "dracula" => Some(Self::dracula()),
+            _ => None,
         }
     }
 
@@ -273,10 +273,9 @@ impl Theme {
     pub fn code_text<S: AsRef<str>>(&self, s: S) -> ColoredString {
         // Use body-colored text on code background
         match (hex_to_rgb(&self.body), hex_to_rgb(&self.code)) {
-            (Ok((fr, fg, fb)), Ok((br, bg, bb))) => s
-                .as_ref()
-                .truecolor(fr, fg, fb)
-                .on_truecolor(br, bg, bb),
+            (Ok((fr, fg, fb)), Ok((br, bg, bb))) => {
+                s.as_ref().truecolor(fr, fg, fb).on_truecolor(br, bg, bb)
+            }
             _ => s.as_ref().normal(),
         }
     }
@@ -326,7 +325,7 @@ mod tests {
     #[test]
     fn test_hex_to_rgb_6_digit() {
         assert_eq!(hex_to_rgb("#ff6600").unwrap(), (255, 102, 0));
-        assert_eq!(hex_to_rgb("ff6600").unwrap(),  (255, 102, 0));
+        assert_eq!(hex_to_rgb("ff6600").unwrap(), (255, 102, 0));
     }
 
     #[test]

@@ -1,8 +1,8 @@
 //! Integration tests for wikiwiki.
 
-use wikiwiki::theme::{hex_to_rgb, Theme};
-use wikiwiki::config::Config;
 use wikiwiki::client::strip_html;
+use wikiwiki::config::Config;
+use wikiwiki::theme::{hex_to_rgb, Theme};
 
 // ─── Theme tests ───────────────────────────────────────────────────────────────
 
@@ -14,8 +14,12 @@ fn all_builtin_themes_parse() {
         let theme = theme.unwrap();
         // Each color should be a valid hex
         for color in [
-            &theme.title, &theme.heading, &theme.body, &theme.link,
-            &theme.error, &theme.success,
+            &theme.title,
+            &theme.heading,
+            &theme.body,
+            &theme.link,
+            &theme.error,
+            &theme.success,
         ] {
             assert!(
                 hex_to_rgb(color).is_ok(),

@@ -81,15 +81,15 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            language:         "en".into(),
-            theme:            "dark".into(),
-            width:            0,
-            pager:            false,
-            results_count:    10,
-            open_urls:        false,
-            show_image_alt:   false,
+            language: "en".into(),
+            theme: "dark".into(),
+            width: 0,
+            pager: false,
+            results_count: 10,
+            open_urls: false,
+            show_image_alt: false,
             max_article_bytes: 0,
-            custom_theme:     Theme::dark(),
+            custom_theme: Theme::dark(),
         }
     }
 }
