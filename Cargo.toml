@@ -1,0 +1,90 @@
+[package]
+name = "wikiwiki"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+authors = ["Hadi Cahyadi <cumulus13@gmail.com>"]
+description = "A beautiful, colorful Wikipedia CLI with full Markdown rendering, emoji support, and customizable themes"
+homepage = "https://github.com/cumulus13/wikiwiki"
+repository = "https://github.com/cumulus13/wikiwiki"
+license = "MIT"
+keywords = ["wikipedia", "cli", "terminal", "colors", "markdown"]
+categories = ["command-line-utilities", "text-processing"]
+readme = "README.md"
+exclude = [".github", "tests"]
+
+[lib]
+name = "wikiwiki"
+path = "src/lib.rs"
+doc = true
+
+[[bin]]
+name = "wikiwiki"
+path = "src/main.rs"
+
+[dependencies]
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "blocking"] }
+
+# JSON parsing
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# CLI argument parsing
+clap = { version = "4", features = ["derive", "color", "wrap_help", "env"] }
+
+# Terminal colors with hex & truecolor support (fulfills make_colors intent)
+colored = "2"
+
+# Markdown rendering in terminal
+termimad = "0.23"
+
+# Config file management (fulfills config-get intent — TOML-based user config)
+confy = "0.6"
+
+# Dirs for config path resolution
+dirs = "5"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Error handling
+anyhow = "1"
+thiserror = "1"
+
+# Text wrapping
+textwrap = "0.16"
+
+# Unicode & emoji support
+unicode-width = "0.1"
+
+# Progress spinner
+indicatif = "0.17"
+
+# Regex for HTML cleanup
+regex = "1"
+
+# HTML entity decoding
+htmlentity = "1"
+
+# Cross-platform terminal size detection
+terminal_size = "0.4"
+
+# Pager support — cross-platform (Linux/macOS/Windows)
+# static_output feature exposes minus::page_all() for blocking paged display
+minus = { version = "5", features = ["static_output", "search"] }
+
+# Open in browser
+open = "5"
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockito = "1"
+assert_cmd = "2"
+predicates = "3"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
